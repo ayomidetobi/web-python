@@ -15,19 +15,13 @@
   
   <script setup>
   import { ref, onMounted, onBeforeUnmount } from "vue";
-  import { EditorState } from "@codemirror/state";
-  import { EditorView, basicSetup } from "codemirror";
-  import { python } from "@codemirror/lang-python";
-  import {
-  autocompletion, completionKeymap, closeBrackets,
-  closeBracketsKeymap
-} from "@codemirror/autocomplete"
+  import { initializeEditor } from "/utils/codeMirrorUtils.js";
+  import { initializePyodide, runPythonCode } from "/utils/pyodideUtils.js";
   
   const editorContainer = ref(null);
   const output = ref("# Output will appear here");
   const loading = ref(false);
   let editorView = null;
-  let pyodide = null;
   
   // Sample starter code
   const initialCode = `# Write your Python code here
@@ -37,98 +31,21 @@ def greet(name):
 result = greet("World")
 print(result)
   
-  # Try some calculations
+# Try some calculations
 for i in range(5):
     print(f"{i} squared is {i**2}")
   `;
   
   onMounted(async () => {
-    if (!editorContainer.value) {
-      console.error("Editor container not found!");
-      return;
-    }
-  
-    // Initialize CodeMirror Editor
-    editorView = new EditorView({
-        doc: initialCode,
-        parent: editorContainer.value,
-        extensions: [basicSetup, python()],
-    });
-  
-    // Load Pyodide for Python execution
-    try {
-      loading.value = true;
-      output.value = "Loading Python environment...";
-  
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js";
-      document.head.appendChild(script);
-  
-      await new Promise((resolve) => (script.onload = resolve));
-      pyodide = await loadPyodide({
-        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
-      });
-  
-      setupPyodideStdout();
-      output.value = "Python environment ready!";
-    } catch (error) {
-      output.value = `Error initializing Python: ${error.message}`;
-      console.error("Pyodide initialization error:", error);
-    } finally {
-      loading.value = false;
-    }
+    editorView = initializeEditor(editorContainer, initialCode);
+    await initializePyodide(output);
   });
   
-  // Capture Python's stdout
-  const setupPyodideStdout = () => {
-    window.captureOutput = (text) => {
-      output.value += text;
-    };
-  
-    pyodide.runPython(`
-      import sys
-      import io
-  
-      # Store the original stdout
-      original_stdout = sys.stdout
-  
-      # Custom print function that calls JavaScript
-      def custom_print(*args, sep=' ', end='\\n', file=None, flush=False):
-          output_text = sep.join(str(arg) for arg in args) + end
-          from js import captureOutput
-          captureOutput(output_text)
-          original_stdout.write(output_text)
-          if flush:
-              original_stdout.flush()
-  
-      # Replace the built-in print function
-      __builtins__.print = custom_print
-    `);
-  };
-  
-  // Run Python code
   const runCode = async () => {
-    if (!pyodide) {
-      output.value = "Python environment is not ready yet. Please wait...";
-      return;
-    }
-  
-    try {
-      loading.value = true;
-      output.value = "";
-  
-      const code = editorView.state.doc.toString();
-      const result = await pyodide.runPythonAsync(code);
-  
-      output.value += result || "Execution finished.";
-    } catch (error) {
-      output.value = `Error: ${error.message}`;
-    } finally {
-      loading.value = false;
-    }
+    const code = editorView.state.doc.toString();
+    await runPythonCode(code, output, loading);
   };
   
-  // Clean up on unmount
   onBeforeUnmount(() => {
     if (editorView) {
       editorView.destroy();
@@ -181,7 +98,6 @@ for i in range(5):
     line-height: 1.5;
     overflow: auto;
     background-color: #fbfafa;
-    /* color: #ccc; */
   }
   
   .output {
