@@ -7,8 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "deploy": "vue-cli-service build && gh-pages -d dist"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@codemirror/basic-setup": "^0.20.0",
