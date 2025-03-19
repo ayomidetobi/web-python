@@ -2,16 +2,23 @@
     <div class="py-playground">
       <div class="editor-container">
         <div class="toolbar">
-          <button @click="runCode" class="run-button">Run</button>
+          <Button @click="runCode" label="Run" icon="pi pi-play" class="run-button" />
         </div>
         <div ref="editorContainer" class="editor"></div>
       </div>
-      <div class="output">
-        <div v-if="loading" class="loading">Running...</div>
-        <pre v-else><code>{{ output }}</code></pre>
-      </div>
+      <div class="output-container">
+  <div class="output-header">
+    <span class="header-title">Output</span>
+  </div>
+  <div class="output-content">
+    <div v-if="loading" class="loading">Running...</div>
+    <pre v-else><code v-html="formattedOutput"></code></pre>
+  </div>
+</div>
+
     </div>
-  </template>
+</template>
+
   
   <script setup>
   import { ref, onMounted, onBeforeUnmount } from "vue";
@@ -28,7 +35,7 @@
 def greet(name):
     return f"Hello, {name}!"
   
-result = greet("World")
+result = greet("Tobi")
 print(result)
   
 # Try some calculations
@@ -46,6 +53,11 @@ for i in range(5):
     await runPythonCode(code, output, loading);
   };
   
+  const formattedOutput = computed(() => {
+  return output.value
+    .replace(/\n/g, "<br>") // Preserve new lines
+    .replace(/Error:.*/g, '<span class="error">$&</span>'); 
+});
   onBeforeUnmount(() => {
     if (editorView) {
       editorView.destroy();
@@ -59,33 +71,37 @@ for i in range(5):
     flex-direction: column;
     width: 100%;
     height: 600px;
-    border: 1px solid #ccc;
+    border: 1px solid #595858;
     border-radius: 4px;
     overflow: hidden;
+    background-color: var(--ind-container-bg);
+    margin-top: 30px;
   }
   
   .editor-container {
     display: flex;
     flex-direction: column;
     height: 60%;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #595858;
   }
   
   .toolbar {
     display: flex;
     padding: 8px;
-    background-color: #f0f0f0;
-    border-bottom: 1px solid #ccc;
+    background-color: var(--ind-container-bg);
+    border-bottom: 1px solid #595858;
+    justify-content: space-between;
   }
   
   .run-button {
-    background-color: #4CAF50;
+    background-color: #00e979;
     color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+    margin-left: auto;
   }
   
   .run-button:hover {
@@ -97,21 +113,60 @@ for i in range(5):
     font-size: 14px;
     line-height: 1.5;
     overflow: auto;
-    background-color: #fbfafa;
+    background-color: var(--ind-container-bg);
   }
   
   .output {
     height: 40%;
     padding: 16px;
-    background-color: #f5f5f5;
+    background-color: var(--ind-container-bg);
+    color: #fbfafa;
     overflow: auto;
-    font-family: 'Courier New', monospace;
     white-space: pre-wrap;
   }
   
-  .loading {
-    color: #666;
-    font-style: italic;
-  }
-  </style>
+  .output-container {
+  display: flex;
+  flex-direction: column;
+  height: 40%;
+  background-color: var(--ind-container-bg);
+  border-top: 1px solid #3c3c3c;
+  border-radius: 0 0 5px 5px;
+  font-family: "Courier New", monospace;
+}
+
+.output-header {
+  background-color: #2d2d2d;
+  color: #bbb;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border-bottom: 1px solid #3c3c3c;
+  display: flex;
+  align-items: center;
+}
+
+.header-title {
+  color: #00e979; /* Green text like VS Code terminal */
+}
+
+.output-content {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #d4d4d4; /* Default output text */
+  font-size: 14px;
+  background-color: #1e1e1e;
+}
+
+.loading {
+  color: #ffa500; /* Orange color for "Running..." text */
+}
+
+.error {
+  color: #ff5555; /* Red color for error messages */
+}
+
+</style>
   

@@ -13,16 +13,11 @@
 <style scoped>
 .container {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 30px auto;
   padding: 20px;
+  color: white;
+
 }
 
-h1 {
-  margin-bottom: 10px;
-}
 
-p {
-  margin-bottom: 20px;
-  color: #666;
-}
 </style>

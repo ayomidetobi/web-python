@@ -1,5 +1,6 @@
 import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
+import { oneDark } from '@codemirror/theme-one-dark';
 
 export const initializeEditor = (editorContainer, initialCode) => {
   if (!editorContainer.value) {
@@ -10,6 +11,8 @@ export const initializeEditor = (editorContainer, initialCode) => {
   return new EditorView({
     doc: initialCode,
     parent: editorContainer.value,
-    extensions: [basicSetup, python()],
+    extensions: [basicSetup, python(),oneDark],
   });
 };
+
+

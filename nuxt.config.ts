@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
+  css: ['/assets/css/global.css'],
   app: {
     head: {
       title: 'Python Playground',
@@ -12,7 +13,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-      ]
+      ],
+      
     }
   },
 })
