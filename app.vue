@@ -1,13 +1,12 @@
 <template>
   <div class="container">
     <h1>Inductiva Python Playground</h1>
-    <p>Write and execute Python code directly in your browser!</p>
+    <p>Try this examples</p>
     <PyEditor />
   </div>
 </template>
 
 <script setup>
-// Component is auto-imported by Nuxt
 </script>
 
 <style scoped>

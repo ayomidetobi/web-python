@@ -95,7 +95,7 @@ for i in range(5):
   
   .run-button {
     background-color: #00e979;
-    color: white;
+    color: var(--ind-dark-int);
     border: none;
     padding: 8px 16px;
     border-radius: 4px;
