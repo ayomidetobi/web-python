@@ -2,15 +2,15 @@ export let pyodide = null;
 
 export const initializePyodide = async (output) => {
   output.value = "Loading Python environment...";
-  const apiKey = process.env.INDUCTIVA_API_KEY; // Retrieve from environment or pass from frontend
-
+  const apiKey = process.env.INDUCTIVA_API_KEY
+  console.log("apikey",apiKey)
   const script = document.createElement("script");
-  script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.4/full/pyodide.js";
+  script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js";
   document.head.appendChild(script);
 
   await new Promise((resolve) => (script.onload = resolve));
   pyodide = await loadPyodide({
-    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.4/full/",
+    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/",
   });
 
   setupPyodideStdout(output);
@@ -19,7 +19,7 @@ export const initializePyodide = async (output) => {
     output.value = "Installing dependencies...";
 
     // Install micropip and other dependencies asynchronously
-    await pyodide.loadPackage(["micropip","aiohttp"]);
+    await pyodide.loadPackage(["micropip"]);
 
     // Pass the API key and manually set the required environment variables
     await pyodide.runPythonAsync(`
@@ -37,6 +37,7 @@ export const initializePyodide = async (output) => {
       os.environ["INDUCTIVA_TURN_SERVER_URL"] = "webrtc.inductiva.ai:3478"
       os.environ["INDUCTIVA_TASK_RUNNER_IMAGE"] = "inductiva/task-runner:main"
       os.environ["INDUCTIVA_FILE_TRACKER_IMAGE"] = "inductiva/file-tracker:main"
+      os.environ["PYODIDE_NO_THREADS"] = "1"
 
       sys.modules['aiortc'] = type(sys)('aiortc')
 
@@ -73,6 +74,8 @@ export const initializePyodide = async (output) => {
       # Install dependencies for Inductiva
       async def install_dependencies():
           dependencies = [
+              'multidict',
+              'aiohttp',
               'certifi',
               'frozendict',
               'fsspec',
@@ -98,23 +101,32 @@ export const initializePyodide = async (output) => {
 
           # Install Inductiva without automatic dependency resolution
           print("Installing Inductiva...")
-          await micropip.install('inductiva', deps=False)
+          await micropip.install('inductiva', deps=False ,keep_going=True)
           print("Inductiva installation complete!")
+          import urllib3.contrib.emscripten.response as em_response
 
+          # Add the missing method
+          if not hasattr(em_response.EmscriptenHttpResponseWrapper, "supports_chunked_reads"):
+              def fake_supports_chunked_reads(self):
+                  return False
+              em_response.EmscriptenHttpResponseWrapper.supports_chunked_reads = fake_supports_chunked_reads
+            
 
       # Run the installation
       await install_dependencies()
+      import inductiva
+      inductiva.set_api_key("${apiKey}",login_message=True)
 
     `);
     pyodide.FS.mkdir("/inductiva");
-    pyodide.FS.mount(pyodide.FS.filesystems.IDBFS, {}, "/inductiva");
+    pyodide.FS.mount(pyodide.FS.filesystems.MEMFS, {}, "/inductiva");
  
      // Create the indcutiva.log file and simulate logs
     pyodide.FS.writeFile('/inductiva/inductiva.log', 'Inductiva log file initialized.\n');
  
      // Create the api_key file with the actual API key (this can be simulated in the browser memory)
-    // pyodide.FS.writeFile('/inductiva/api_key',process.env.INDUCTIVA_API_KEY);
-
+     pyodide.FS.writeFile('/inductiva/api_key',apiKey);
+    
     output.value = "Python environment ready with Inductiva and dependencies installed!";
   } catch (error) {
     output.value = `Error installing packages: ${error.message}`;
