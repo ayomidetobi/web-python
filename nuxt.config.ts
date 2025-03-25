@@ -5,8 +5,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['/assets/css/global.css'],
   runtimeConfig: {
+    //this is a test
+    API_KEY: process.env.NUXT_INDUCTIVA_API_KEY,
     public: {
-      apiKey: process.env.INDUCTIVA_API_KEY,
+      apiKey: process.env.NUXT_INDUCTIVA_API_KEY,
     },
   },
   app: {

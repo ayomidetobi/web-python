@@ -1,9 +1,11 @@
+import { config } from "process";
+
 export let pyodide = null;
 
 export const initializePyodide = async (output) => {
   output.value = "Loading Python environment...";
-  const apiKey = process.env.INDUCTIVA_API_KEY
-  console.log("apikey",apiKey)
+  const config = useRuntimeConfig()
+  const apiKey = config.public.apiKey
   const script = document.createElement("script");
   script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js";
   document.head.appendChild(script);
@@ -119,7 +121,7 @@ export const initializePyodide = async (output) => {
 
     `);
     pyodide.FS.mkdir("/inductiva");
-    pyodide.FS.mount(pyodide.FS.filesystems.MEMFS, {}, "/inductiva");
+    pyodide.FS.mount(pyodide.FS.filesystems.IDBFS, {}, "/inductiva");
  
      // Create the indcutiva.log file and simulate logs
     pyodide.FS.writeFile('/inductiva/inductiva.log', 'Inductiva log file initialized.\n');
