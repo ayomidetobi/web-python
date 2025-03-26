@@ -23,8 +23,8 @@
   <script setup>
   import { ref, onMounted, onBeforeUnmount } from "vue";
   import { initializeEditor } from "/utils/codeMirrorUtils.js";
-  import { initializePyodide, runPythonCode } from "/utils/pyodideUtils.js";
-  
+  import { initializePyodide} from "/utils/pyodideUtils.js";
+  import { runPythonCode } from "../utils/runner";
   const editorContainer = ref(null);
   const output = ref("# Output will appear here");
   const loading = ref(false);
@@ -32,15 +32,20 @@
   
   // Sample starter code
   const initialCode = `# Write your Python code here
-def greet(name):
-    return f"Hello, {name}!"
-  
-result = greet("Tobi")
-print(result)
-  
-# Try some calculations
-for i in range(5):
-    print(f"{i} squared is {i**2}")
+import urllib3
+import json
+
+# Initialize a PoolManager instance
+http = urllib3.PoolManager()
+
+# Make a GET request
+response = http.request("GET", "https://jsonplaceholder.typicode.com/posts")
+
+# Print response status and content
+data = json.loads(response.data.decode("utf-8"))
+print(data)
+ 
+
   `;
   
   onMounted(async () => {
