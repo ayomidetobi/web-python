@@ -34,19 +34,33 @@
   const initialCode = `# Write your Python code here
 import urllib3
 import json
+import os
 
 # Initialize a PoolManager instance
 http = urllib3.PoolManager()
 
-# Make a GET request
+# Get API key from environment variable
+api_key = os.getenv("INDUCTIVA_API_KEY")
+
+if not api_key:
+    raise ValueError("API key not found. Please set the INDUCTIVA_API_KEY environment variable.")
+
+# Define headers with API key
+headers = {
+    "X-API-Key": api_key
+}
+
+# Make a GET request 
 response = http.request("GET", "https://api-dev.inductiva.ai/version")
 
-#response = http.request("GET", "https://jsonplaceholder.typicode.com/posts")
+# Make a GET request with header
+#response = http.request("GET", "https://api-dev.inductiva.ai/users/info",headers=headers)
 
-# Print response status and content
+# Parse and print response
 data = json.loads(response.data.decode("utf-8"))
 print(json.dumps(data, indent=4))
- 
+
+
 
   `;
   
