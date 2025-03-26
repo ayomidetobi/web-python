@@ -73,7 +73,8 @@ export const installDependencies = async (pyodide, apiKey) => {
                 em_response.EmscriptenHttpResponseWrapper.supports_chunked_reads = fake_supports_chunked_reads
   
         await install_deps()
-
+        #import inductiva
+        #inductiva.set_api_key("${apiKey}",login_message=True)
     `);
   };
   

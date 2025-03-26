@@ -39,11 +39,13 @@ import json
 http = urllib3.PoolManager()
 
 # Make a GET request
-response = http.request("GET", "https://jsonplaceholder.typicode.com/posts")
+response = http.request("GET", "https://api-dev.inductiva.ai/version")
+
+#response = http.request("GET", "https://jsonplaceholder.typicode.com/posts")
 
 # Print response status and content
 data = json.loads(response.data.decode("utf-8"))
-print(data)
+print(json.dumps(data, indent=4))
  
 
   `;
@@ -60,8 +62,6 @@ print(data)
   
   const formattedOutput = computed(() => {
   return output.value
-    .replace(/\n/g, "<br>") // Preserve new lines
-    .replace(/Error:.*/g, '<span class="error">$&</span>'); 
 });
   onBeforeUnmount(() => {
     if (editorView) {
@@ -75,7 +75,7 @@ print(data)
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 600px;
+    height: 800px;
     border: 1px solid #595858;
     border-radius: 4px;
     overflow: hidden;
@@ -122,7 +122,7 @@ print(data)
   }
   
   .output {
-    height: 40%;
+    height: 100%;
     padding: 16px;
     background-color: var(--ind-container-bg);
     color: #fbfafa;
@@ -133,7 +133,7 @@ print(data)
   .output-container {
   display: flex;
   flex-direction: column;
-  height: 40%;
+  height: 100%;
   background-color: var(--ind-container-bg);
   border-top: 1px solid #3c3c3c;
   border-radius: 0 0 5px 5px;
